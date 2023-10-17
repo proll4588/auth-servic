@@ -1,24 +1,21 @@
 import { ERRORS_MAP } from '../errors';
 import { verifyRefreshToken } from '../utils/verifyRefreshToken';
-import { router } from './router';
 import { signAccessToken } from '../utils/signToken';
+import { Router } from 'express';
 
-router.post('/update', async (req, res) => {
+export const updateRouter = Router();
+
+updateRouter.post('/update', async (req, res) => {
   const { refreshToken } = req.body;
 
   try {
     const tokenPayload = await verifyRefreshToken(refreshToken);
     if (!tokenPayload) return res.status(400).json(ERRORS_MAP['other']);
 
-    const accessToken = signAccessToken(tokenPayload);
+    const accessToken = signAccessToken({ userId: tokenPayload.userId });
 
-    return res.status(200).json({
-      error: false,
-      data: {
-        accessToken,
-      },
-      message: 'Access token created successfully',
-    });
+    // TODO: Обновлять и refresh token
+    return res.status(200).json({ accessToken });
   } catch (e) {
     console.error(e);
     res.status(400).json(ERRORS_MAP['other']);

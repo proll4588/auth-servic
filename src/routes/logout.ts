@@ -1,18 +1,19 @@
+import { Router } from 'express';
 import { deleteToken, getToken } from '../models/token';
-import { router } from './router';
+import { ERRORS_MAP } from '../errors';
 
-router.delete('/logout', async (req, res) => {
+export const logoutRouter = Router();
+
+logoutRouter.post('/logout', async (req, res) => {
   const { refreshToken } = req.body;
 
   try {
     const token = await getToken(refreshToken);
     if (token) await deleteToken(refreshToken);
 
-    return res
-      .status(200)
-      .json({ error: false, message: 'Logged Out Sucessfully' });
+    return res.status(200);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ error: true, message: 'Internal Server Error' });
+    res.status(500).json(ERRORS_MAP['other']);
   }
 });
